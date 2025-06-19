@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <declare-styleable name="DatePickerWheel" tools:ignore="ResourceName">
+        <attr name="monthTextColor" format="color" />
+        <attr name="dateTextColor" format="color" />
+        <attr name="dayTextColor" format="color" />
+        <attr name="disabledColor" format="color" />
+        <attr name="selectedColor" format="color" />
+
+        <attr name="mode" format="enum">
+            <enum name="month" value="1" />
+            <enum name="year" value="2" />
+        </attr>
+
+        <attr name="autoDate" format="boolean" />
+
+        <attr name="numberOfDayVisible" format="integer" />
+
+        <attr name="monthTextSize" format="dimension" />
+        <attr name="dateTextSize" format="dimension" />
+        <attr name="dayTextSize" format="dimension" />
+
+        <attr name="isTodayButtonEnable" format="boolean" />
+
+        <attr name="dateToText" format="boolean" />
+
+        <attr name="datePickerOrientation" format="enum">
+            <enum name="vertical" value="1" />
+            <enum name="horizontal" value="2" />
+        </attr>
+
+    </declare-styleable>
+
+</resources>
