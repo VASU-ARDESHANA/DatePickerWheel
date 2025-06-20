@@ -5,7 +5,6 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.annotation.Nullable
 import androidx.core.content.ContextCompat
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -18,11 +17,11 @@ class DatePickerWheel : LinearLayout {
     private var dateText: TextView? = null
 
     constructor(context: Context?) : super(context) {}
-    constructor(context: Context?, @Nullable attrs: AttributeSet?) : super(context, attrs) {
+    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {
         init(attrs, 0)
     }
 
-    constructor(context: Context?, @Nullable attrs: AttributeSet?, defStyleAttr: Int) : super(
+    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(
         context,
         attrs,
         defStyleAttr
@@ -52,6 +51,7 @@ class DatePickerWheel : LinearLayout {
         val isTodayButtonEnabled =
             a.getBoolean(R.styleable.DatePickerWheel_isTodayButtonEnable, false)
         val dateToText = a.getBoolean(R.styleable.DatePickerWheel_dateToText, false)
+
 
         btnToday?.visibility = if (isTodayButtonEnabled) VISIBLE else GONE
         dateText?.visibility = if (dateToText) VISIBLE else GONE
@@ -92,6 +92,12 @@ class DatePickerWheel : LinearLayout {
                 ContextCompat.getColor(context, R.color.selected_background)
             )
         )
+        timelineView!!.setNormalBackground(
+            a.getColor(
+                R.styleable.DatePickerWheel_normalDateBackground,
+                ContextCompat.getColor(context, R.color.normal_background)
+            )
+        )
 
         val numberOfDayVisible = a.getInt(R.styleable.DatePickerWheel_numberOfDayVisible, 7)
         val monthTextSize = a.getDimension(R.styleable.DatePickerWheel_monthTextSize, 13f)
@@ -116,10 +122,6 @@ class DatePickerWheel : LinearLayout {
         dateText?.text = formattedDate
     }
 
-    /**
-     * Register a callback to be invoked when a date is selected.
-     * @param listener the callback that will run
-     */
     fun setOnDateSelectedListener(listener: OnDateSelected) {
         timelineView?.setOnDateSelectedListener(object : OnDateSelected {
             override fun onDateSelected(year: Int, month: Int, day: Int, dayOfWeek: Int) {
@@ -157,6 +159,7 @@ class DatePickerWheel : LinearLayout {
      */
     fun setActiveDate(date: Calendar?) {
         timelineView!!.setActiveDate(date!!)
+        updateDateText(date)
     }
 
     /**

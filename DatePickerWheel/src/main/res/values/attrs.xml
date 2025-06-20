@@ -6,6 +6,7 @@
         <attr name="dayTextColor" format="color" />
         <attr name="disabledColor" format="color" />
         <attr name="selectedColor" format="color" />
+        <attr name="normalDateBackground" format="color" />
 
         <attr name="mode" format="enum">
             <enum name="month" value="1" />

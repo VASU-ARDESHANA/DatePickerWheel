@@ -2,4 +2,5 @@
     <color name="date_text">#FFFFFF</color>
     <color name="disabled_date">#757575</color>
     <color name="selected_background">#FFB74D</color>
+    <color name="normal_background">#00000000</color>
 </resources>

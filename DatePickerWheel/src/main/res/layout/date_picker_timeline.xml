@@ -9,7 +9,7 @@
         android:id="@+id/txtSelectedDate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="5sp"
+        android:background="@drawable/today_background"
         android:gravity="center"
         android:text="15 August 1947"
         android:textSize="18sp"
@@ -25,10 +25,10 @@
 
     <TextView
         android:id="@+id/btnToday"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginBottom="5sp"
+        android:background="@drawable/today_background"
         android:gravity="center"
         android:text="Today"
         android:textColor="@color/date_text"

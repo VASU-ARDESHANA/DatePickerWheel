@@ -18,6 +18,7 @@ class TimelineView : RecyclerView {
     private var dateTextColor = 0
     private var dayTextColor = 0
     private var disabledColor = 0
+    private var normalDate = 0
     private var numberOfDayVisible: Int = 7
     private var timelineOrientation: Int = HORIZONTAL
     private var monthTextSize = 13f
@@ -25,7 +26,6 @@ class TimelineView : RecyclerView {
     private var dayTextSize = 13f
     private var selectedColor: Int = 0
 
-    //    private float monthTextSize, dateTextSize, dayTextSize;
     var year = 0
         private set
     var month = 0
@@ -102,6 +102,16 @@ class TimelineView : RecyclerView {
         return disabledColor
     }
 
+    @JvmName("setNormalBackground1")
+    fun setNormalBackground(color: Int) {
+        this.normalDate = color
+    }
+
+    @JvmName("getNormalBackground1")
+    fun getNormalBackground(): Int {
+        return normalDate
+    }
+
     @JvmName("getYear1")
     fun getYear(): Int {
         return year
@@ -176,7 +186,7 @@ class TimelineView : RecyclerView {
         invalidate()
     }
 
-    @JvmName("setOrientation1")
+    @SuppressLint("NotifyDataSetChanged")
     fun setOrientation(orientation: Int) {
         timelineOrientation = if (orientation == 1) VERTICAL else HORIZONTAL
         layoutManager = LinearLayoutManager(context, timelineOrientation, false)
@@ -229,7 +239,10 @@ class TimelineView : RecyclerView {
                 post {
                     val itemWidth = width / numberOfDayVisible
                     val centerOffset = (width / 2) - (itemWidth / 2)
-                    (layoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, centerOffset)
+                    (layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
+                        position,
+                        centerOffset
+                    )
                 }
             }
         } catch (e: ParseException) {

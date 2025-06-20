@@ -62,14 +62,12 @@ class TimeAdapter(
 
         holder.rootView.setOnClickListener { v ->
             if (!isDisabledDate) {
-                selectedView?.background = null
-
-                val drawable = ContextCompat.getDrawable(v.context, R.drawable.background)?.mutate()
-                drawable?.setTint(timelineView.getSelectedColor())
-                v.background = drawable
-
+                val previousSelectedPosition = selectedPosition
                 selectedPosition = position
                 selectedView = v
+
+                notifyItemChanged(previousSelectedPosition)
+                notifyItemChanged(selectedPosition)
 
                 listener?.onDateSelected(year, month, day, dayOfWeek)
             } else {
@@ -101,15 +99,7 @@ class TimeAdapter(
         }
     }
 
-
-    /**
-     * Set the position of selected date
-     * @param selectedPosition active date Position
-     */
-    fun setSelectedPosition(selectedPosition: Int) {
-        this.selectedPosition = selectedPosition
-    }
-
+    @SuppressLint("NotifyDataSetChanged")
     fun selectDate(date: Calendar) {
         val baseCalendar = Calendar.getInstance()
         baseCalendar.set(
@@ -129,13 +119,13 @@ class TimeAdapter(
 
     override fun getItemCount(): Int {
         return when (timelineView.getMode()) {
-            1 -> { // month
+            1 -> {
                 val calendar = Calendar.getInstance()
                 calendar.set(timelineView.getYear(), timelineView.getMonth(), 1)
                 calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
             }
 
-            2 -> { // year
+            2 -> {
                 val calendar = Calendar.getInstance()
                 calendar.set(timelineView.getYear(), 0, 1)
                 calendar.getActualMaximum(Calendar.DAY_OF_YEAR)
@@ -145,7 +135,7 @@ class TimeAdapter(
         }
     }
 
-
+    @SuppressLint("NotifyDataSetChanged")
     fun disableDates(dates: Array<Date?>?) {
         dates?.let { deactivatedDates = it }
         notifyDataSetChanged()
@@ -180,9 +170,12 @@ class TimeAdapter(
                     ContextCompat.getDrawable(rootView.context, R.drawable.background)?.mutate()
                 drawable?.setTint(timelineView.getSelectedColor())
                 rootView.background = drawable
-                selectedView = rootView
             } else {
-                rootView.background = null
+                if (timelineView.getNormalBackground() != 0) {
+                    rootView.setBackgroundColor(timelineView.getNormalBackground())
+                } else {
+                    rootView.background = null
+                }
             }
 
             val todayCal = Calendar.getInstance()
