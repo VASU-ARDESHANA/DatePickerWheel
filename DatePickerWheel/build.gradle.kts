@@ -51,7 +51,7 @@ afterEvaluate {
 
                 groupId = "com.github.VASU-ARDESHANA"
                 artifactId = "DatePickerWheel"
-                version = "1.0.1"
+                version = "1.1.1"
 
                 pom {
                     name.set("DatePickerWheel")
