@@ -15,6 +15,7 @@ class DatePickerWheel : LinearLayout {
     private var timelineView: TimelineView? = null
     private var btnToday: TextView? = null
     private var dateText: TextView? = null
+    private var selectedCalendar: Calendar? = null
 
     constructor(context: Context?) : super(context) {}
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs) {
@@ -117,6 +118,7 @@ class DatePickerWheel : LinearLayout {
 
 
     private fun updateDateText(calendar: Calendar) {
+        selectedCalendar = calendar
         val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
         val formattedDate = dateFormat.format(calendar.time)
         dateText?.text = formattedDate
@@ -170,4 +172,17 @@ class DatePickerWheel : LinearLayout {
     fun deactivateDates(dates: Array<Date?>?) {
         dates?.let { timelineView!!.deactivateDates(it) }
     }
+
+    /**
+     * Get the currently selected date in text format (e.g., "22 June 2025")
+     * @return Formatted selected date as String or null if no date is selected
+     */
+    fun getSelectedDateText(): String? {
+        selectedCalendar?.let {
+            val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
+            return dateFormat.format(it.time)
+        }
+        return null
+    }
+
 }
