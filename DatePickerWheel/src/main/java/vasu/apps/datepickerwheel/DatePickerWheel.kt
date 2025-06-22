@@ -185,4 +185,16 @@ class DatePickerWheel : LinearLayout {
         return null
     }
 
+    /**
+     * Get the currently selected date in text format (e.g., "22 June 2025")
+     * @return Formatted selected date as String or null if no date is selected
+     */
+    fun getSelectedDateNumber(): String? {
+        selectedCalendar?.let {
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            return dateFormat.format(it.time)
+        }
+        return null
+    }
+
 }
