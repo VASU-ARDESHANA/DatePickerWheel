@@ -2,19 +2,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="5dp">
+    android:background="@drawable/calendar_background"
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/txtSelectedDate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/today_background"
         android:gravity="center"
+        android:padding="10sp"
         android:text="15 August 1947"
         android:textSize="18sp"
         android:textStyle="bold" />
 
+    <View
+        android:id="@+id/txtSelectedDateView"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="4dp"
+        android:background="@color/date_text" />
 
     <vasu.apps.datepickerwheel.TimelineView
         android:id="@+id/timelineView"
@@ -23,13 +29,20 @@
         android:layout_weight="1"
         tools:listitem="@layout/recycler_view_timeline" />
 
+    <View
+        android:id="@+id/txtTodayButtonView"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginBottom="4dp"
+        android:background="@color/date_text" />
+
     <TextView
-        android:id="@+id/btnToday"
+        android:id="@+id/txtTodayButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:background="@drawable/today_background"
         android:gravity="center"
+        android:padding="10sp"
         android:text="Today"
         android:textColor="@color/date_text"
         android:textSize="20sp"

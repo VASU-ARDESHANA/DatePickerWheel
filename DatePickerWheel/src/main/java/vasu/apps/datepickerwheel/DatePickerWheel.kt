@@ -13,8 +13,10 @@ import java.util.Locale
 
 class DatePickerWheel : LinearLayout {
     private var timelineView: TimelineView? = null
-    private var btnToday: TextView? = null
+    private var txtTodayButton: TextView? = null
+    private var txtTodayButtonView: View? = null
     private var dateText: TextView? = null
+    private var dateTextView: View? = null
     private var selectedCalendar: Calendar? = null
 
     constructor(context: Context?) : super(context) {}
@@ -42,8 +44,10 @@ class DatePickerWheel : LinearLayout {
     fun init(attrs: AttributeSet?, defStyleAttr: Int) {
         val view: View = inflate(context, R.layout.date_picker_timeline, this)
         timelineView = view.findViewById(R.id.timelineView)
-        btnToday = view.findViewById(R.id.btnToday)
+        txtTodayButton = view.findViewById(R.id.txtTodayButton)
+        txtTodayButtonView = view.findViewById(R.id.txtTodayButtonView)
         dateText = view.findViewById(R.id.txtSelectedDate)
+        dateTextView = view.findViewById(R.id.txtSelectedDateView)
 
         val a = context.obtainStyledAttributes(attrs, R.styleable.DatePickerWheel, defStyleAttr, 0)
 
@@ -52,15 +56,43 @@ class DatePickerWheel : LinearLayout {
         val isTodayButtonEnabled =
             a.getBoolean(R.styleable.DatePickerWheel_isTodayButtonEnable, false)
         val dateToText = a.getBoolean(R.styleable.DatePickerWheel_dateToText, false)
+        val isMonthEnabled = a.getBoolean(R.styleable.DatePickerWheel_isMonthEnable, true)
+        val isDateEnabled = a.getBoolean(R.styleable.DatePickerWheel_isDateEnable, true)
+        val isDayEnabled = a.getBoolean(R.styleable.DatePickerWheel_isDayEnable, true)
+        val scrollingSmoothness = a.getInt(R.styleable.DatePickerWheel_scrollingSmoothness, 100)
+        timelineView?.setScrollSpeedFactor(scrollingSmoothness)
 
+        timelineView!!.setMonthEnabled(isMonthEnabled)
+        timelineView!!.setDateEnabled(isDateEnabled)
+        timelineView!!.setDayEnabled(isDayEnabled)
 
-        btnToday?.visibility = if (isTodayButtonEnabled) VISIBLE else GONE
+        txtTodayButton?.visibility = if (isTodayButtonEnabled) VISIBLE else GONE
+        txtTodayButtonView?.visibility = if (isTodayButtonEnabled) VISIBLE else GONE
         dateText?.visibility = if (dateToText) VISIBLE else GONE
+        dateTextView?.visibility = if (dateToText) VISIBLE else GONE
 
-        btnToday?.setOnClickListener {
+        txtTodayButton?.setOnClickListener {
             val today = Calendar.getInstance()
+            val deactivatedDates = timelineView?.getDeactivatedDates() ?: emptyList()
+
+            val isTodayDisabled = deactivatedDates.any { date ->
+                val cal = Calendar.getInstance()
+                cal.time = date
+                cal.get(Calendar.YEAR) == today.get(Calendar.YEAR) &&
+                        cal.get(Calendar.MONTH) == today.get(Calendar.MONTH) &&
+                        cal.get(Calendar.DAY_OF_MONTH) == today.get(Calendar.DAY_OF_MONTH)
+            }
+
             setActiveDate(today)
-            updateDateText(today)
+            updateDateText(today, isTodayDisabled)
+        }
+
+        dateText?.setOnClickListener {
+            selectedCalendar?.let { calendar ->
+                val isDisabled = isDateDisabled(calendar)
+                setActiveDate(calendar)
+                updateDateText(calendar, isDisabled)
+            }
         }
 
         timelineView!!.setDayTextColor(
@@ -116,12 +148,11 @@ class DatePickerWheel : LinearLayout {
         timelineView!!.setOrientation(orientation)
     }
 
-
-    private fun updateDateText(calendar: Calendar) {
+    private fun updateDateText(calendar: Calendar, isDisable: Boolean) {
         selectedCalendar = calendar
         val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
         val formattedDate = dateFormat.format(calendar.time)
-        dateText?.text = formattedDate
+        dateText?.text = if (isDisable) "Disabled Date" else formattedDate
     }
 
     fun setOnDateSelectedListener(listener: OnDateSelected) {
@@ -129,7 +160,8 @@ class DatePickerWheel : LinearLayout {
             override fun onDateSelected(year: Int, month: Int, day: Int, dayOfWeek: Int) {
                 val calendar = Calendar.getInstance()
                 calendar.set(year, month, day)
-                updateDateText(calendar)
+                timelineView?.setActiveDate(calendar)
+                updateDateText(calendar, false)
                 listener.onDateSelected(year, month, day, dayOfWeek)
             }
 
@@ -143,6 +175,16 @@ class DatePickerWheel : LinearLayout {
                 listener.onDisabledDateSelected(year, month, day, dayOfWeek, isDisabled)
             }
         })
+    }
+
+    private fun isDateDisabled(date: Calendar): Boolean {
+        val deactivatedDates = timelineView?.getDeactivatedDates() ?: return false
+        return deactivatedDates.any { d ->
+            val cal = Calendar.getInstance().apply { time = d }
+            cal.get(Calendar.YEAR) == date.get(Calendar.YEAR) &&
+                    cal.get(Calendar.MONTH) == date.get(Calendar.MONTH) &&
+                    cal.get(Calendar.DAY_OF_MONTH) == date.get(Calendar.DAY_OF_MONTH)
+        }
     }
 
     /**
@@ -161,7 +203,7 @@ class DatePickerWheel : LinearLayout {
      */
     fun setActiveDate(date: Calendar?) {
         timelineView!!.setActiveDate(date!!)
-        updateDateText(date)
+        updateDateText(date, false)
     }
 
     /**
@@ -174,7 +216,7 @@ class DatePickerWheel : LinearLayout {
     }
 
     /**
-     * Get the currently selected date in text format (e.g., "22 June 2025")
+     * Get the currently selected date in text format (e.g., "15 August 1947")
      * @return Formatted selected date as String or null if no date is selected
      */
     fun getSelectedDateText(): String? {
@@ -186,7 +228,7 @@ class DatePickerWheel : LinearLayout {
     }
 
     /**
-     * Get the currently selected date in text format (e.g., "22 June 2025")
+     * Get the currently selected date in text format (e.g., "1947-08-15")
      * @return Formatted selected date as String or null if no date is selected
      */
     fun getSelectedDateNumber(): String? {

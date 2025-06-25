@@ -3,13 +3,17 @@ package vasu.apps.datepickerwheel
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
+import android.util.DisplayMetrics
+import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import vasu.apps.datepickerwheel.Adapter.TimeAdapter
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
+import kotlin.math.sqrt
 
 class TimelineView : RecyclerView {
     private var adapter: TimeAdapter? = null
@@ -25,6 +29,11 @@ class TimelineView : RecyclerView {
     private var dateTextSize = 25f
     private var dayTextSize = 13f
     private var selectedColor: Int = 0
+    private var isMonthEnable: Boolean = true
+    private var isDateEnable: Boolean = true
+    private var isDayEnable: Boolean = true
+    private var deactivatedDates: List<Date> = emptyList()
+    private var scrollSpeedFactor = 100f
 
     var year = 0
         private set
@@ -167,12 +176,46 @@ class TimelineView : RecyclerView {
         return dayTextSize
     }
 
+    @JvmName("setScrollSpeedFactor1")
+    fun setScrollSpeedFactor(factor: Int) {
+        scrollSpeedFactor = factor.toFloat()
+    }
+
+    @JvmName("getScrollSpeedFactor1")
+    fun getScrollSpeedFactor(): Float {
+        return scrollSpeedFactor
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     fun setNumberOfDayVisible(days: Int) {
         this.numberOfDayVisible = days
         adapter?.setNumberOfDayVisible(days)
         adapter?.notifyDataSetChanged()
         invalidate()
+    }
+
+    fun setMonthEnabled(enabled: Boolean) {
+        isMonthEnable = enabled
+    }
+
+    fun isMonthEnabled(): Boolean {
+        return isMonthEnable
+    }
+
+    fun setDateEnabled(enabled: Boolean) {
+        isDateEnable = enabled
+    }
+
+    fun isDateEnabled(): Boolean {
+        return isDateEnable
+    }
+
+    fun setDayEnabled(enabled: Boolean) {
+        isDayEnable = enabled
+    }
+
+    fun isDayEnabled(): Boolean {
+        return isDayEnable
     }
 
     fun setOnDateSelectedListener(listener: OnDateSelected?) {
@@ -219,7 +262,6 @@ class TimelineView : RecyclerView {
         setAdapter(adapter)
     }
 
-
     /**
      * Calculates the date position and set the selected background on that date
      * @param activeDate active Date
@@ -237,12 +279,57 @@ class TimelineView : RecyclerView {
                 adapter?.selectDate(activeDate)
 
                 post {
-                    val itemWidth = width / numberOfDayVisible
-                    val centerOffset = (width / 2) - (itemWidth / 2)
-                    (layoutManager as LinearLayoutManager).scrollToPositionWithOffset(
-                        position,
-                        centerOffset
-                    )
+                    val linearLayoutManager = layoutManager as LinearLayoutManager
+
+                    val smoothScroller = object : LinearSmoothScroller(context) {
+                        override fun calculateSpeedPerPixel(displayMetrics: DisplayMetrics): Float {
+                            return scrollSpeedFactor / displayMetrics.densityDpi
+                        }
+
+                        override fun getHorizontalSnapPreference(): Int {
+                            return SNAP_TO_START
+                        }
+
+                        override fun getVerticalSnapPreference(): Int {
+                            return SNAP_TO_START
+                        }
+
+                        override fun calculateDxToMakeVisible(
+                            view: View,
+                            snapPreference: Int
+                        ): Int {
+                            val itemWidth =
+                                if (numberOfDayVisible > 0) width / numberOfDayVisible else width
+                            val centerOffset = (width / 2) - (itemWidth / 2)
+                            val left = linearLayoutManager.getDecoratedLeft(view)
+                            return left - centerOffset
+                        }
+
+                        override fun calculateDyToMakeVisible(
+                            view: View,
+                            snapPreference: Int
+                        ): Int {
+                            val itemHeight =
+                                if (numberOfDayVisible > 0) height / numberOfDayVisible else height
+                            val centerOffset = (height / 2) - (itemHeight / 2)
+                            val top = linearLayoutManager.getDecoratedTop(view)
+                            return top - centerOffset
+                        }
+
+                        override fun onTargetFound(targetView: View, state: State, action: Action) {
+                            val dx = calculateDxToMakeVisible(targetView, horizontalSnapPreference)
+                            val dy = calculateDyToMakeVisible(targetView, verticalSnapPreference)
+                            val distance = sqrt((dx * dx + dy * dy).toDouble()).toInt()
+                            val time = calculateTimeForDeceleration(distance)
+
+                            if (time > 0) {
+                                action.update(dx, dy, time, mDecelerateInterpolator)
+                            }
+                        }
+                    }
+
+                    smoothScroller.targetPosition = position
+                    linearLayoutManager.startSmoothScroll(smoothScroller)
                 }
             }
         } catch (e: ParseException) {
@@ -250,9 +337,13 @@ class TimelineView : RecyclerView {
         }
     }
 
+    fun getDeactivatedDates(): List<Date> {
+        return deactivatedDates ?: emptyList()
+    }
 
-    fun deactivateDates(deactivatedDates: Array<Date?>) {
-        adapter!!.disableDates(deactivatedDates)
+    fun deactivateDates(dates: Array<Date?>) {
+        this.deactivatedDates = dates.filterNotNull()
+        adapter?.disableDates(dates)
     }
 
 }

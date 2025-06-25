@@ -25,6 +25,7 @@ class TimeAdapter(
     private var listener: OnDateSelected? = null
     private var selectedView: View? = null
     private var numberOfDayVisible: Int = 7
+    var isDisabled = false
 
     fun setNumberOfDayVisible(days: Int) {
         numberOfDayVisible = days
@@ -93,6 +94,7 @@ class TimeAdapter(
             1 -> {
                 calendar.add(Calendar.DAY_OF_YEAR, position)
             }
+
             2 -> {
                 calendar.add(Calendar.DAY_OF_YEAR, position)
             }
@@ -153,6 +155,10 @@ class TimeAdapter(
 
         @SuppressLint("UseCompatLoadingForDrawables")
         fun bind(month: Int, day: Int, dayOfWeek: Int, year: Int, position: Int): Boolean {
+            monthView.visibility = if (timelineView.isMonthEnabled()) View.VISIBLE else View.GONE
+            dateView.visibility = if (timelineView.isDateEnabled()) View.VISIBLE else View.GONE
+            dayView.visibility = if (timelineView.isDayEnabled()) View.VISIBLE else View.GONE
+
             monthView.setTextColor(timelineView.getMonthTextColor())
             dateView.setTextColor(timelineView.getDateTextColor())
             dayView.setTextColor(timelineView.getDayTextColor())
@@ -178,11 +184,6 @@ class TimeAdapter(
                 }
             }
 
-            val todayCal = Calendar.getInstance()
-            val isToday = todayCal.get(Calendar.DAY_OF_MONTH) == day &&
-                    todayCal.get(Calendar.MONTH) == month &&
-                    todayCal.get(Calendar.YEAR) == year
-
             deactivatedDates?.forEach { date ->
                 val tempCal = Calendar.getInstance()
                 if (date != null) {
@@ -190,8 +191,7 @@ class TimeAdapter(
                 }
                 if (tempCal.get(Calendar.DAY_OF_MONTH) == day &&
                     tempCal.get(Calendar.MONTH) == month &&
-                    tempCal.get(Calendar.YEAR) == year &&
-                    !isToday
+                    tempCal.get(Calendar.YEAR) == year
                 ) {
                     val disabledColor = timelineView.getDisabledDateColor()
                     monthView.setTextColor(disabledColor)

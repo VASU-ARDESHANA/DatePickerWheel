@@ -30,6 +30,12 @@
             <enum name="horizontal" value="2" />
         </attr>
 
+        <attr name="isMonthEnable" format="boolean" />
+        <attr name="isDateEnable" format="boolean" />
+        <attr name="isDayEnable" format="boolean" />
+
+        <attr name="scrollingSmoothness" format="integer" />
+
     </declare-styleable>
 
 </resources>
