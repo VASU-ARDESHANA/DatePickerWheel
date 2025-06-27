@@ -220,6 +220,7 @@ class DatePickerWheel : LinearLayout {
      * @return Formatted selected date as String or null if no date is selected
      */
     fun getSelectedDateText(): String? {
+        if (dateText?.text == "Disabled Date") return null
         selectedCalendar?.let {
             val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
             return dateFormat.format(it.time)
@@ -232,6 +233,7 @@ class DatePickerWheel : LinearLayout {
      * @return Formatted selected date as String or null if no date is selected
      */
     fun getSelectedDateNumber(): String? {
+        if (dateText?.text == "Disabled Date") return null
         selectedCalendar?.let {
             val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             return dateFormat.format(it.time)

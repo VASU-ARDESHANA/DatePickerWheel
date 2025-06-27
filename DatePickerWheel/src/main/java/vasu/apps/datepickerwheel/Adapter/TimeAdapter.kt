@@ -25,7 +25,6 @@ class TimeAdapter(
     private var listener: OnDateSelected? = null
     private var selectedView: View? = null
     private var numberOfDayVisible: Int = 7
-    var isDisabled = false
 
     fun setNumberOfDayVisible(days: Int) {
         numberOfDayVisible = days
